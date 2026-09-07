@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Week 1 — Model vs Vegas</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-2: #0b0b0b;
+      --bg-3: #111111;
+      --line: rgba(255,255,255,0.08);
+      --line-2: rgba(255,255,255,0.14);
+      --text: #f4f4f4;
+      --muted: #8a8a8a;
+      --dim: #5c5c5c;
+      --accent: #cc0000;
+      --good: #3dd68c;
+      --warn: #e8b84a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+    }
+    body { overflow-x: hidden; }
+    a { color: inherit; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav {
+      max-width: 1180px; margin: 0 auto;
+      padding: 18px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand {
+      letter-spacing: 0.28em;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase;
+    }
+    .brand span { color: var(--accent); }
+    .status {
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .status b { color: var(--text); font-weight: 500; }
+    .hero {
+      max-width: 1180px; margin: 0 auto;
+      padding: 72px 24px 36px;
+    }
+    .kicker {
+      color: var(--muted);
+      font-size: 12px; letter-spacing: 0.22em;
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    h1 {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 600; letter-spacing: -0.04em;
+      line-height: 0.95;
+    }
+    h1 em { font-style: normal; color: var(--muted); }
+    .lede {
+      margin-top: 22px; max-width: 560px;
+      color: var(--muted); font-size: 16px; line-height: 1.55;
+    }
+    .meta {
+      margin-top: 28px; display: flex; gap: 28px; flex-wrap: wrap;
+      color: var(--dim); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 8px 24px 80px; }
+    .swipe-hint {
+      display: none;
+      color: var(--dim);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin: 0 0 10px 2px;
+    }
+    .panel {
+      background: linear-gradient(180deg, #0e0e0e 0%, #090909 100%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .scroller {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x pan-y;
+    }
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+    }
+    thead th {
+      text-align: left;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--dim);
+      padding: 16px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #0c0c0c;
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 16px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    th.sticky, td.sticky {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #0c0c0c;
+      box-shadow: 8px 0 12px rgba(0,0,0,0.35);
+      min-width: 128px;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    td.sticky { background: #0d0d0d; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(255,255,255,0.02); }
+    .game { font-weight: 600; letter-spacing: -0.02em; }
+    .sub { display: block; margin-top: 3px; color: var(--dim); font-size: 11px; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; }
+    .num { font-variant-numeric: tabular-nums; }
+    .plus { color: var(--good); }
+    .minus { color: #ff6b6b; }
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--line-2);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px; letter-spacing: 0.04em;
+    }
+    .vegas {
+      font-weight: 600; letter-spacing: 0.02em;
+    }
+    .live-dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--good); margin-right: 7px;
+      box-shadow: 0 0 8px var(--good);
+    }
+    .live-dot.off { background: var(--warn); box-shadow: none; }
+    footer {
+      max-width: 1180px; margin: 0 auto;
+      padding: 0 24px 64px;
+      color: var(--dim); font-size: 12px; line-height: 1.7;
+    }
+    @media (max-width: 800px) {
+      .hero { padding: 36px 16px 20px; }
+      h1 { font-size: 34px; }
+      .wrap { padding: 8px 12px 72px; }
+      .nav { padding: 16px; }
+      .swipe-hint { display: block; }
+      tbody td, thead th { padding: 14px 12px; }
+      th.sticky, td.sticky { min-width: 112px; padding-left: 8px; padding-right: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">Week One <span>/</span> Model</div>
+      <div class="status"><span class="live-dot" id="dot"></span><b id="feed">Connecting</b> · view only</div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="kicker">2026 NFL Season · Week 1</div>
+    <h1>The Model versus.<br /><em>the live board.</em></h1>
+    <p class="lede">Week 1 NFL matchups. Risk adjusted prediction model.</p>
+    <div class="meta">
+      <div>SPREADS - ESPN</div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="swipe-hint">Swipe left and right for all columns</div>
+    <div class="panel">
+      <div class="scroller">
+        <table>
+          <thead>
+            <tr>
+              <th class="sticky">Matchup</th>
+              <th>Kickoff</th>
+              <th>MODEL<br />DIFFERENTIAL</th>
+              <th>Model</th>
+              <th>Vegas</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    View only. Model values are from the Week 1 workbook. Vegas lines refresh from ESPN when the browser can reach the public scoreboard feed; otherwise the last snapshot is shown.
+    This page does not accept bets and does not store visitor data.
+  </footer>
+
+  <script>
+    const GAMES = [
+      { id: "401872656", game: "Patriots @ Seahawks", when: "Wed 8:20 NBC", away: "Patriots", home: "Seahawks", h11: 17.60, h13: 16.66, i13: 0.93, model: "Patriots", snap: "SEA -3.5", awayAbbr: "NE", homeAbbr: "SEA" },
+      { id: "401872657", game: "49ers vs Rams", when: "Thu Netflix · Melbourne", away: "49ers", home: "Rams", h11: 15.26, h13: 21.43, i13: -6.16, model: "Rams", snap: "LAR -3.5", awayAbbr: "SF", homeAbbr: "LAR" },
+      { id: "401872661", game: "Bears @ Panthers", when: "Sun 1:00 FOX", away: "Bears", home: "Panthers", h11: 24.15, h13: 13.69, i13: 10.46, model: "Bears", snap: "CHI -2.5", awayAbbr: "CHI", homeAbbr: "CAR" },
+      { id: "401872925", game: "Buccaneers @ Bengals", when: "Sun 1:00 FOX", away: "Buccaneers", home: "Bengals", h11: 18.64, h13: 23.92, i13: -5.28, model: "Bengals", snap: "CIN -3.5", awayAbbr: "TB", homeAbbr: "CIN" },
+      { id: "401872923", game: "Saints @ Lions", when: "Sun 1:00 FOX", away: "Saints", home: "Lions", h11: 13.04, h13: 24.18, i13: -11.15, model: "Lions", snap: "DET -7.0", awayAbbr: "NO", homeAbbr: "DET" },
+      { id: "401872660", game: "Bills @ Texans", when: "Sun 1:00 CBS", away: "Bills", home: "Texans", h11: 17.59, h13: 17.67, i13: -0.08, model: "Texans", snap: "BUF -1.5", awayAbbr: "BUF", homeAbbr: "HOU" },
+      { id: "401872659", game: "Ravens @ Colts", when: "Sun 1:00 CBS", away: "Ravens", home: "Colts", h11: 21.74, h13: 24.43, i13: -2.69, model: "Colts", snap: "BAL -3.5", awayAbbr: "BAL", homeAbbr: "IND" },
+      { id: "401872922", game: "Browns @ Jaguars", when: "Sun 1:00 CBS", away: "Browns", home: "Jaguars", h11: 13.17, h13: 21.57, i13: -8.40, model: "Jaguars", snap: "JAX -7.5", awayAbbr: "CLE", homeAbbr: "JAX" },
+      { id: "401872658", game: "Falcons @ Steelers", when: "Sun 1:00 FOX", away: "Falcons", home: "Steelers", h11: 17.02, h13: 23.16, i13: -6.15, model: "Steelers", snap: "PIT -3.5", awayAbbr: "ATL", homeAbbr: "PIT" },
+      { id: "401872924", game: "Jets @ Titans", when: "Sun 1:00 CBS", away: "Jets", home: "Titans", h11: 12.35, h13: 9.53, i13: 2.82, model: "Jets", snap: "TEN -1.5", awayAbbr: "NYJ", homeAbbr: "TEN" },
+      { id: "401872926", game: "Cardinals @ Chargers", when: "Sun 4:25 CBS", away: "Cardinals", home: "Chargers", h11: 16.74, h13: 18.05, i13: -1.31, model: "Chargers", snap: "LAC -10.5", awayAbbr: "ARI", homeAbbr: "LAC" },
+      { id: "401872928", game: "Dolphins @ Raiders", when: "Sun 4:25 FOX", away: "Dolphins", home: "Raiders", h11: 17.83, h13: 8.40, i13: 9.43, model: "Dolphins", snap: "LV -3.5", awayAbbr: "MIA", homeAbbr: "LV" },
+      { id: "401872927", game: "Packers @ Vikings", when: "Sun 4:25 CBS", away: "Packers", home: "Vikings", h11: 17.16, h13: 17.81, i13: -0.66, model: "Vikings", snap: "MIN -1.5", awayAbbr: "GB", homeAbbr: "MIN" },
+      { id: "401872929", game: "Commanders @ Eagles", when: "Sun 4:25 FOX", away: "Commanders", home: "Eagles", h11: 19.12, h13: 19.71, i13: -0.59, model: "Eagles", snap: "PHI -5.5", awayAbbr: "WSH", homeAbbr: "PHI" },
+      { id: "401872930", game: "Cowboys @ Giants", when: "Sun 8:20 NBC", away: "Cowboys", home: "Giants", h11: 22.10, h13: 15.00, i13: 7.10, model: "Cowboys", snap: "DAL -2.5", awayAbbr: "DAL", homeAbbr: "NYG" },
+      { id: "401872931", game: "Broncos @ Chiefs", when: "Mon 8:15 ESPN", away: "Broncos", home: "Chiefs", h11: 15.98, h13: 11.38, i13: 4.60, model: "Broncos", snap: "KC -3.0", awayAbbr: "DEN", homeAbbr: "KC" }
+    ];
+
+    function fmt(n) { return Number(n).toFixed(2); }
+
+    function render(liveMap, liveOk) {
+      document.getElementById("dot").classList.toggle("off", !liveOk);
+      document.getElementById("feed").textContent = liveOk ? "Live board" : "Snapshot board";
+      const body = document.getElementById("rows");
+      body.innerHTML = GAMES.map(g => {
+        const vegas = (liveMap && liveMap[g.id]) || g.snap;
+        const diff = -Math.abs(Number(g.i13));
+        return `<tr>
+          <td class="sticky"><div class="game">${g.away} <span style="color:#5c5c5c;font-weight:400">at</span> ${g.home}</div><span class="sub">${g.game}</span></td>
+          <td><span class="sub" style="margin:0">${g.when}</span></td>
+          <td class="num minus">${fmt(diff)}</td>
+          <td><span class="pill">${g.model}</span></td>
+          <td class="vegas">${vegas}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    render(null, false);
+
+    fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=1&seasontype=2")
+      .then(r => r.json())
+      .then(data => {
+        const map = {};
+        (data.events || []).forEach(ev => {
+          const odds = ev.competitions && ev.competitions[0] && ev.competitions[0].odds && ev.competitions[0].odds[0];
+          if (odds && odds.details) map[ev.id] = odds.details;
+        });
+        render(map, Object.keys(map).length > 0);
+      })
+      .catch(() => render(null, false));
+  </script>
+</body>
+</html>
